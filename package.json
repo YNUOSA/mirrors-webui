@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker-image":"docker build -t ghcr.io/ynuosa/mirrors-webui ."
   },
   "dependencies": {
     "@emotion/react": "^11.8.2",
