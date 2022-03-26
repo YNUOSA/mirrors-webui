@@ -1,3 +1,17 @@
+import {
+  Chip,
+  Container,
+  imageListItemBarClasses,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+} from "@mui/material";
+import Box from "@mui/material/Box";
+import moment from "moment-timezone";
 import { stringify } from "querystring";
 
 export async function getServerSideProps(): Promise<{ props: MirrorsProps }> {
@@ -44,17 +58,66 @@ type ImageStatus =
   | "disabled"
   | "";
 const Mirrors = ({ images }: MirrorsProps) => {
+  function imageStatusColorMapping(
+    status: ImageStatus
+  ): "success" | "error" | "primary" | "default" {
+    switch (status) {
+      case "success":
+        return "success";
+      case "failed":
+        return "error";
+      case "syncing":
+        return "primary";
+      default:
+        return "default";
+    }
+  }
   return (
-    <div>
-      {images.map((image) => {
-        return (
-          <div key={image.name}>
-            <span>{image.name}</span>
-            <span>{image.is_master}</span>
-          </div>
-        );
-      })}
-    </div>
+    <Box>
+      <Container maxWidth="xl">
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell align="right">Last Update</TableCell>
+                <TableCell align="right">Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {images.map((image) => {
+                return (
+                  <TableRow key={image.name} hover={true}>
+                    <TableCell>{image.name}</TableCell>
+                    <TableCell align="right">
+                      {moment
+                        .unix(image.last_update_ts)
+                        .tz("Asia/Shanghai")
+                        .format("YYYY-MM-DD HH:mm")}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Tooltip
+                        title={`last update: ${moment
+                          .unix(image.last_ended_ts)
+                          .tz("Asia/Shanghai")
+                          .format("YYYY-MM-DD HH:mm")}`}
+                        placement="top"
+                      >
+                        <Chip
+                          label={image.status}
+                          size="small"
+                          color={imageStatusColorMapping(image.status)}
+                        />
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Container>
+    </Box>
   );
 };
 export default Mirrors;
